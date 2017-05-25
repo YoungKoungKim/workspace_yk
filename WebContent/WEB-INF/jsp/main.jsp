@@ -6,9 +6,37 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>메인 페이지</title>
+<style type="text/css">
+
+.btn {
+	font-weight: bold; border-radius : 10px;
+	background-color: #D8BFD8;
+	padding: 10px 35px;
+	text-align: center;
+	color: white;
+	border-radius: 10px;
+}
+
+.btn:hover {
+	background-color: grey;
+	color: #fff;
+	text-decoration: none;
+}
+
+td {
+	margin: 10px;
+	padding-top: 3px;
+	padding-right: 2px;
+}
+
+</style>
+<script
+   src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+   
 <script src="https://code.jquery.com/jquery-2.2.4.min.js"
 	integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
 	crossorigin="anonymous"></script>
+	
 <script type="text/javascript">
 	$(document).ready(function() {
 		var vaild_id = false;
@@ -32,9 +60,9 @@
 						$('#joinIdMsg').html('이미 사용중인 아이디입니다.');
 					}
 				},
-				error : function(data) {
-					alert('error1');
-				}
+				error:function(request,status,error){
+			        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+			       }
 			});
 		});
 		
@@ -59,7 +87,10 @@
 		});
 		
 		$('#joinPassChk').keyup(function() {
-			vaild_pass = true;
+			if ($(this).val() == $('#joinPass').val())
+				vaild_pass = true;
+			else
+				vaild_pass = false;
 		});
 		
 		$('#btn_join').click(function(){
@@ -95,7 +126,8 @@
 				type: 'post',
 				success : function(data){
 					alert(data.msg);
-					location.href=data.next;
+					if (data.result)
+						location.href=data.next;
 				},
 				error : function(data) {
 					alert('에러');
@@ -106,31 +138,24 @@
 	});
 </script>
 
-<link rel="stylesheet"
-   href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-<link rel="stylesheet"
-   href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
-<script
-   src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-   
 </head>
 <body>
 <center>
 		<c:choose>
 			<c:when test="${id_index == null}">
 				<table>
-					<tr><td>아이디</td><td><input type="text" id="inputId"></td></tr>
-					<tr><td>비밀번호</td><td><input type="text" id="inputPass"></td></tr>
+					<tr><td width="80">아이디</td><td><input type="text" id="inputId"></td><td rowspan="2"><button class="btn" id="loginBtn">로그인</button></td></tr>
+					<tr><td width="80">비밀번호</td><td><input type="password" id="inputPass"></td></tr>
 				</table>
-				<button id="loginBtn">로그인</button>
-				<button id="joinBtn" data-target='#joinModal' data-toggle='modal'>회원가입</button>
-				<button id="useGuest" onclick="location.href='list.do'">가입하지 않고 이용</button>
+				<br>
+				<button class="btn" id="joinBtn" data-target='#joinModal' data-toggle='modal'>회원가입</button>
+				<button class="btn" id="useGuest" onclick="location.href='list.do'">가입하지 않고 이용</button>
 
 			</c:when>
 			<c:otherwise>
-				<a href="list.do">리스트로 이동</a>
-				<input type="button" value="로그아웃"
-					onclick="location.href='logout.do'">
+				<br>
+				<a id="h1" style="font-size : 36px;" href="list.do">View Board List</a>
+				<br>
 			</c:otherwise>
 		</c:choose>
 	</center>
@@ -141,7 +166,7 @@
 			<div class="modal-content">
 				<div id="borderLine">
 					<div class="modal-header">
-						회원가입
+						<h1>Sign Up</h1>
 					</div>
 					<!-- body -->
 					<div class="modal-body">
@@ -149,14 +174,17 @@
 							<tr>
 								<td>아이디</td><td><input type="text" id="joinId"></td><td><span id="joinIdMsg"></span></td>
 							</tr>
+							<tr><td colspan="3" height="5"></td></tr>
 							<tr>
 								<td>닉네임</td><td><input type="text" id="joinNick"></td><td><span id="joinNickMsg"></span></td>
 							</tr>
+							<tr><td colspan="3" height="5"></td></tr>
 							<tr>
-								<td>비밀번호</td><td><input type ="text" id="joinPass"></td><td><span id="joinPassMsg"></span></td>
+								<td>비밀번호</td><td><input type ="password" id="joinPass"></td><td><span id="joinPassMsg"></span></td>
 							</tr>
+							<tr><td colspan="3" height="5"></td></tr>
 							<tr>
-								<td>비밀번호 확인</td><td><input type="text" id="joinPassChk"></td><td><span id="joinPassChkMsg/g"></span></td>
+								<td>비밀번호 확인</td><td><input type="password" id="joinPassChk"></td><td><span id="joinPassChkMsg/g"></span></td>
 							</tr>
 						</table>
 						

@@ -8,6 +8,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		insert into reply values(#{board_num}, 0, #{id_index}, #{rewriter}, #{recontent}, sysdate(), #{reparent}, #{redepth}, #{reorder})
 	</insert>
 	
+	<update id="setReplySeq" parameterType="reply">
+		update reply set reparent = #{reparent}, redepth = #{redepth}, reorder = #{reorder} where re_num = #{re_num}
+	</update>
+	
 	<update id="updateReply" parameterType="reply">
 		update reply set recontent=#{recontent}, redate=sysdate() where re_num = #{re_num}
 	</update>
@@ -21,7 +25,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="selectAllByBoard" parameterType="int" resultType="reply">
-		select * from reply where board_num = #{board_num}
+		select * from reply where board_num = #{board_num} order by reorder
 	</select>
+	
+	<select id="selectBoardReplyParent" resultType="reply" parameterType="int">
+        SELECT board_num, redepth, reorder
+          FROM reply
+         WHERE re_num=#{reparent}
+    </select>
+    <select id="selectBoardReplyMaxOrder" resultType="int" parameterType="int">
+        SELECT IFNULL(MAX(REORDER),0)+1
+          FROM reply
+         WHERE board_num=#{board_num}
+    </select>
+   <update id="updateBoardReplyOrder" parameterType="reply"> 
+        UPDATE reply
+           SET reorder = reorder + 1 
+         WHERE board_num=#{board_num} AND reorder >= #{reorder}       
+    </update>
+
 
 </mapper>

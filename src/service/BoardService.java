@@ -30,59 +30,95 @@ public class BoardService implements IBoardService {
 	public void writeBoard(Board board, MultipartFile file) {
 		String path = "/Users/KiM YK/Upload/";
 
-		String fileName = file.getOriginalFilename();
-		int size = (int) file.getSize();
-		String fileuri = path + UUID.randomUUID();
-		BoardFile boardFile = new BoardFile();
-		boardFile.setOriginFileName(fileName);
-		boardFile.setSize(size);
-		boardFile.setUri(fileuri);
+		if (file.getOriginalFilename() != "") {
+			String fileName = file.getOriginalFilename();
+			int size = (int) file.getSize();
+			String fileuri = path + UUID.randomUUID();
+			BoardFile boardFile = new BoardFile();
+			boardFile.setOriginFileName(fileName);
+			boardFile.setSize(size);
+			boardFile.setUri(fileuri);
 
-		File localFile = new File(fileuri);
-		try {
-			file.transferTo(localFile);
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			File localFile = new File(fileuri);
+			try {
+				file.transferTo(localFile);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			boardFileDao.insertBoardFile(boardFile);
+			int fileid = boardFile.getId();
+			board.setFileid(fileid);
+		} else {
+			board.setFileid(0);
 		}
-		boardFileDao.insertBoardFile(boardFile);
-		int fileid = boardFile.getId();
-		board.setFileid(fileid);
 
 		boardDao.insertBoard(board);
 	}
 
+	//파일 수정 버전
 	@Override
 	public boolean updateBoard(Board board, MultipartFile file) {
-		//원래 보드랑 파일 이름, 사이즈가 같으면 바꾸지 않는다. 다르면 바꾼다.
-		
 		String path = "/Users/KiM YK/Upload/";
+		//파일ㅇ ㅣ없을 때, 있을 때 나눔
+		//1. board.getFileid == 0 이면, boardFile 하나 insert 하고, 그 아이디를 준다.
+		//2. board.getFileid != 0 일때
+		//   1) 파일이 그대로
+		//   2) 파일이 바뀜
+		if (board.getFileid() == 0) {
+			if (file.getOriginalFilename() != "") {
+				String fileName = file.getOriginalFilename();
+				int size = (int) file.getSize();
+				String fileuri = path + UUID.randomUUID();
+				BoardFile boardFile = new BoardFile();
+				boardFile.setOriginFileName(fileName);
+				boardFile.setSize(size);
+				boardFile.setUri(fileuri);
 
-		String fileName = file.getOriginalFilename();
-		int size = (int) file.getSize();
-		
-		String fileuri = path + UUID.randomUUID();
-		BoardFile boardFile = new BoardFile();
-		boardFile.setOriginFileName(fileName);
-		boardFile.setSize(size);
-		boardFile.setUri(fileuri);
+				File localFile = new File(fileuri);
+				try {
+					file.transferTo(localFile);
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				boardFileDao.insertBoardFile(boardFile);
+				int fileid = boardFile.getId();
+				board.setFileid(fileid);
+			} else {
+				board.setFileid(0);
+			}
+		} else {
+			BoardFile boardFile = boardFileDao.selectOne(board.getFileid());
+			if (file.getOriginalFilename() != "") {
+				String fileName = file.getOriginalFilename();
+				int size = (int) file.getSize();
+				
+				String fileuri = path + UUID.randomUUID();
+				System.out.println(board.getFileid());
+				boardFile.setOriginFileName(fileName);
+				boardFile.setSize(size);
+				boardFile.setUri(fileuri);
 
-		File localFile = new File(fileuri);
-		try {
-			file.transferTo(localFile);
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+				File localFile = new File(fileuri);
+				try {
+					file.transferTo(localFile);
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				boardFileDao.updateBoardFile(boardFile);
+			}
+			int fileid = boardFile.getId();
+			board.setFileid(fileid);
 		}
-		boardFileDao.insertBoardFile(boardFile);
-		int fileid = boardFile.getId();
-		board.setFileid(fileid);
 
-		boardDao.insertBoard(board);
-		
 		int result = boardDao.updateBoard(board);
+		System.out.println(board);
 		if (result > 0)
 			return true;
 		return false;

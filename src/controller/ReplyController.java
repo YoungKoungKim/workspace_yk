@@ -18,11 +18,14 @@ public class ReplyController {
 	
 	@RequestMapping("writeReply.do")
 	public String writeReply(Reply reply) {
-		reply.setRewriter(memberService.selectOneMember(reply.getId_index()).getNick());
-		reply.setReparent(reply.getRe_num());
-		reply.setRedepth(0);
-		reply.setReorder(0);
+		//그냥 쓰이는 댓글
 		replyService.insertReply(reply);
+		return "redirect:view.do?board_num=" + reply.getBoard_num();
+	}
+	
+	@RequestMapping("writeReReply.do")
+	public String wrtieReReply(Reply reply) {
+		replyService.insertReReply(reply);
 		return "redirect:view.do?board_num=" + reply.getBoard_num();
 	}
 	

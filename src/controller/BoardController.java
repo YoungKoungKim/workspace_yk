@@ -85,8 +85,9 @@ public class BoardController {
 		return mav;
 	}
 
-	@RequestMapping("updateBoard.do")
+	@RequestMapping(method = RequestMethod.POST, value = "updateBoard.do")
 	public String updateBoard(Board board, @RequestParam("ufile") MultipartFile ufile) {
+		System.out.println("updateBoard.do");
 		boolean result = boardService.updateBoard(board, ufile);
 		if (result)
 			return "redirect:view.do?board_num=" + board.getBoard_num();
